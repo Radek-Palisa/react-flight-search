@@ -1,0 +1,85 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+
+.searchForm {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.searchForm > div {
+    margin-right: 20px;
+}
+
+.datePicker {
+    margin-top: 23px;
+}
+
+.submitButton {
+    margin-top: 19px;
+}
+
+.searchResults {
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+.resultHeader {
+    display: flex;
+    align-items: flex-end;
+    text-transform: capitalize;
+}
+
+.resultCardHeader--header {
+    color: rgb(0, 188, 212);
+}
+.resultCardHeader--header svg {
+    fill: rgb(0, 188, 212) !important;
+}
+
+.resultCardHeader > div:first-child {
+    display: none !important;
+}
+
+.resultHeader__fromTo {
+    width: 20%;
+}
+.resultHeader__price {
+    width: 67px;
+    margin-left: auto;
+}
+
+.resultHeader svg {
+    width: 20px !important;
+    height: 20px !important;
+    margin-right: 10px;
+    margin-bottom: -4px;
+}
+
+.resultCardBody > table {
+    margin-left: 27px;
+    text-align: left;
+}
+
+.resultCardBody > table th,
+.resultCardBody > table td {
+    padding-right: 10px;
+    padding-bottom: 10px;
+    text-transform: capitalize;
+}
+
+.spinner {
+    text-align: center;
+    margin-top: 50px;
+}
+
+.suggestions {
+    position: absolute;
+    top: 280px;
+    left: 140px;
+    z-index: 10;
+    background-color: white;
+}
