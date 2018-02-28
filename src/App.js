@@ -20,6 +20,16 @@ import Menu from 'material-ui/Menu';
 import MenuItem from 'material-ui/MenuItem';
 import Paper from 'material-ui/Paper';
 
+function closestByClass(el, clazz) {
+    while (el.className !== clazz) {
+        el = el.parentNode;
+        if (!el) {
+            return null;
+        }
+    }
+    return el;
+}
+
 class App extends Component {
     constructor(props) {
         super(props);
@@ -35,72 +45,72 @@ class App extends Component {
             results: [],
             suggestions: [],      
             suggestionInputActive: false,
-            suggestionsPopover: false,
             spinnerOn: false,
         };
-
-        //this.suggestionInputActive = false;
     
         this.handleInputChange = this.handleInputChange.bind(this);
         this.handleDateChange = this.handleDateChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.makeSuggestions = this.makeSuggestions.bind(this);
-        this.handleSuggestionsPopoverClose = this.handleSuggestionsPopoverClose.bind(this);
-        this.focusBack = this.focusBack.bind(this);
+        this.handleFocus = this.handleFocus.bind(this);
     }
 
-    componentDidMount() {
-
-    }
     componentDidUpdate() {
-        //console.log('componentDidUpdate')
-        //this.textInput.focus();
+        if (this.state.suggestionInputActive) {
+            this.textInput.focus();
+        } else {
+            this.textInput.blur();
+        }
     }
 
-    focusBack() {
-        this.textInput.focus();
+    handleFocus() {
+        this.setState({
+            suggestionInputActive: true,
+        })
+        window.addEventListener('click', clickHandler)
+        window.addEventListener('keydown', keypressHandler)
+        
+        var self = this;
+
+        function clickHandler(event) {
+            if (closestByClass(event.target, 'suggestions') || closestByClass(event.target, 'flyFrom')) {
+            } else {
+                self.setState({ 
+                    suggestionInputActive: false,
+                    suggestions: []
+                })
+                window.removeEventListener('keydown', keypressHandler)
+                window.removeEventListener('click', clickHandler);
+            }
+        }
+        function keypressHandler(event) {
+            if ((event.shiftKey && event.key === 'Tab') || event.key === 'Tab') {
+                self.setState({ 
+                    suggestionInputActive: false,
+                    suggestions: []
+                })
+                window.removeEventListener('keydown', keypressHandler)
+                window.removeEventListener('click', clickHandler);
+            }
+        }
     }
  
-    makeSuggestions(event, target) {
+    fetchSuggestions(value) {
         axios.get(`https://api.skypicker.com/locations/`, {
             params: {
-                term: target.value,
+                term: value,
                 locale: 'en-US',
                 limit: 7
             }
         })
-            .then(res => {
-                //this.setState({ suggestionInputActive: true });
-                //this.suggestionInputActive = true;
-                
+            .then(res => {            
                 const suggestions = res.data.locations.map(location => location.name);
                 this.setState({ suggestions });
-                this.setState({ suggestionsPopover: true })
-                console.log('makeSuggestions ', event)
-                this.focusBack();
-                
-                // if (suggestions.length !== 0) {
-                //     if (!this.state.suggestionsPopover) {
-                //         console.log(this.state.suggestionsPopover)
-                //         this.setState({ suggestionsPopover: true });
-                //     }
-                    
-                // } else {
-                //     this.setState({ suggestionsPopover: false });
-                // }
-                // //console.log(this.suggestionInputActive)
-                // //this.setState({ suggestionInputActive: false });
-                // //console.log('from makeSuggestions ', this.state.suggestionInputActive)
-                // //this.suggestionInputActive = false;
-
-                // console.log('makeSuggestions ', document.activeElement)       
-                // console.log('makeSuggestions ', event)       
-                //target.focus();
             })
     }
 
     handleInputChange(event, date) {
-        event.preventDefault;
+
         const target = event ? event.target : date;
         const value = target.type === 'checkbox' ? target.checked : target.value;
         const name = target.name;
@@ -110,16 +120,8 @@ class App extends Component {
         this.setState({
             query,
         });
-        console.log(event.type)
-        if (event.type === 'change') {
-            //console.log('change', event.type)
-            this.makeSuggestions(event.type, target);
-        }
-        // //this.setState({ suggestionInputActive: true });
-        // //console.log('from handleInputChange ', this.state.suggestionInputActive);
-        // //this.setState({ suggestionInputActive: false });
-        // console.log('from handleInputChange 2', this.state.suggestionInputActive);
 
+        this.fetchSuggestions(target.value);
     }
 
     handleDateChange(event, date) {
@@ -152,14 +154,6 @@ class App extends Component {
             })
     }
 
-    handleSuggestionsPopoverClose(event) {
-        console.log('handleSuggestionsPopoverClose', document.activeElement)
-        // this.setState({
-        //     suggestionsPopover: false,
-        // });
-        console.log('handleSuggestionsPopoverClose',event.type)
-    }
-
     render() {
 
         return (
@@ -175,13 +169,13 @@ class App extends Component {
                                 className="searchForm" 
                                 onSubmit={this.handleSubmit}>
                                 <TextField
-                                    className={this.state.suggestionsPopover ? 'active' : 'inactive'}
+                                    className="flyFrom"
                                     name="flyFrom"
                                     hintText="Hint Text"
                                     floatingLabelText="Fly from"
                                     value={this.state.query.flyFrom}
+                                    onFocus={this.state.suggestionInputActive ? null : this.handleFocus}
                                     onChange={this.handleInputChange}
-                                    onBlur={this.handleInputChange}
                                     ref={(input) => { this.textInput = input; }}
                                     />
                                 <TextField
@@ -209,16 +203,14 @@ class App extends Component {
                             </form>
                         </CardText>
                     </Card>
-                    {this.state.suggestionsPopover ? 
+                    {this.state.suggestions.length > 0 ? 
                         <Paper className="suggestions">
                             <Menu desktop={true}>
                                 {this.state.suggestions.map((suggestion, index) => {
-                                    console.log('hello')
                                     return (
                                         <MenuItem primaryText={suggestion} key={index} />
                                     )
                                 })}
-                                {console.log('from render', document.activeElement)}
                             </Menu>
                         </Paper> : null
                     }
