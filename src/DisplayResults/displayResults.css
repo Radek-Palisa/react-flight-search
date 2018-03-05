@@ -1,0 +1,87 @@
+
+/* Reasult Cards */
+
+.resultHeader {
+    display: flex;
+    align-items: flex-end;
+    text-transform: capitalize;
+}
+
+.resultCardHeader {
+    padding: 20px 16px !important;
+}
+
+.resultCardHeader--header {
+    color: rgb(0, 188, 212);
+    padding: 16px !important;
+    border-bottom: 1px solid #00bdd4b8;
+}
+.resultCardHeader--header svg {
+    fill: rgb(0, 188, 212) !important;
+}
+
+.resultCardHeader > div:first-child {
+    display: none !important;
+}
+
+.resultHeader__fromTo {
+    width: 20%;
+}
+.resultHeader__price {
+    width: 67px;
+    margin-left: auto;
+}
+
+.resultHeader svg {
+    width: 20px !important;
+    height: 20px !important;
+    margin-right: 10px;
+    margin-bottom: -4px;
+}
+
+.resultCardBody > table {
+    margin-left: 27px;
+    text-align: left;
+}
+
+.resultCardBody > table th,
+.resultCardBody > table td {
+    padding-right: 10px;
+    padding-bottom: 10px;
+    text-transform: capitalize;
+}
+
+
+
+/* pagination */
+
+#page-numbers {
+    display: flex;
+    justify-content: center;
+    height: 70px;
+}
+
+#page-numbers > ul {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 6px, rgba(0, 0, 0, 0.12) 0px 1px 4px;
+    border-radius: 2px;
+}
+
+#page-numbers > ul > li {
+    width: 40px;
+    padding: 10px 0;
+    display: block;
+    text-align: center;
+    cursor: pointer;
+}
+
+#page-numbers > ul > li.active {
+    background-color: rgb(0, 188, 212);
+    color: white;
+}
+
+#page-numbers > ul > li + li{
+    border-left: 1px solid #efefef;
+}

@@ -1,17 +1,16 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import logo from './logo.svg';
-import './App.css';
+
+import AppHeader from './AppHeader/AppHeader';
+import AppFooter from './AppFooter/AppFooter';
+import DisplayResults from './DisplayResults/DisplayResults';
+
 // eslint-disable-next-line 
 import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/Card';
 // eslint-disable-next-line 
 import {Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle} from 'material-ui/Toolbar';
 // eslint-disable-next-line 
 import {List, ListItem} from 'material-ui/List';
-import ActionFlightTakeoff from 'material-ui/svg-icons/action/flight-takeoff';
-import ActionFlightLand from 'material-ui/svg-icons/action/flight-land';
-import IconTime from 'material-ui/svg-icons/device/access-time';
-import IconEuro from 'material-ui/svg-icons/action/euro-symbol';
 import CircularProgress from 'material-ui/CircularProgress';
 import RaisedButton from 'material-ui/RaisedButton';
 import TextField from 'material-ui/TextField';
@@ -35,56 +34,72 @@ class App extends Component {
         super(props);
         this.state = {
             query: {
-                flyFrom: '',
-                to: '',
-                dateFrom: '',
-                dateTo: '',
-                partner: 'picky'
+                flyFrom: 'prague',
+                to: 'london',
+                dateFrom: (new Date()).toLocaleDateString(),
+                dateTo: (new Date()).toLocaleDateString(),
+                limit: 30
             },
             datePickerTime: new Date(),
-            results: [],
+            results: null,
             suggestions: [],      
             suggestionInputActive: false,
+            currentlyFocusedInput: null,
             spinnerOn: false,
         };
     
         this.handleInputChange = this.handleInputChange.bind(this);
         this.handleDateChange = this.handleDateChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.makeSuggestions = this.makeSuggestions.bind(this);
+        this.fetchSuggestions = this.fetchSuggestions.bind(this);
         this.handleFocus = this.handleFocus.bind(this);
+        this.handleSuggestionItemClick = this.handleSuggestionItemClick.bind(this);
     }
 
     componentDidUpdate() {
-        if (this.state.suggestionInputActive) {
-            this.textInput.focus();
-        } else {
-            this.textInput.blur();
+        if (this.state.currentlyFocusedInput) {
+            if (this.state.suggestionInputActive) {
+                this.state.currentlyFocusedInput.focus();
+            } else {
+                this.state.currentlyFocusedInput.blur();
+                this.setState({ currentlyFocusedInput: null})
+            }
         }
     }
 
-    handleFocus() {
+    handleFocus(event) {
+        const inputName = event.target.getAttribute('name');
+
         this.setState({
             suggestionInputActive: true,
+            currentlyFocusedInput: event.target
         })
         window.addEventListener('click', clickHandler)
         window.addEventListener('keydown', keypressHandler)
-        
-        var self = this;
 
+        var self = this;
+        
         function clickHandler(event) {
-            if (closestByClass(event.target, 'suggestions') || closestByClass(event.target, 'flyFrom')) {
+            if (closestByClass(event.target, 'suggestions') || closestByClass(event.target, inputName)) {
             } else {
-                self.setState({ 
-                    suggestionInputActive: false,
-                    suggestions: []
-                })
+
+                if (event.target.getAttribute('name') === 'to' || event.target.getAttribute('name') === 'flyFrom') {
+                    self.handleFocus(event);
+                    self.setState({ suggestions: [] });
+                } else {
+                    self.setState({  
+                        suggestionInputActive: false,
+                        suggestions: []
+                    })
+                }
+           
                 window.removeEventListener('keydown', keypressHandler)
                 window.removeEventListener('click', clickHandler);
             }
         }
         function keypressHandler(event) {
             if ((event.shiftKey && event.key === 'Tab') || event.key === 'Tab') {
+
                 self.setState({ 
                     suggestionInputActive: false,
                     suggestions: []
@@ -112,7 +127,7 @@ class App extends Component {
     handleInputChange(event, date) {
 
         const target = event ? event.target : date;
-        const value = target.type === 'checkbox' ? target.checked : target.value;
+        const value = target.value;
         const name = target.name;
         const query = this.state.query;
         query[name] = value;
@@ -139,12 +154,7 @@ class App extends Component {
         event.preventDefault();
         axios.get(`https://api.skypicker.com/flights`, {
             params: {
-                flyFrom: this.state.query.flyFrom,
-                to: this.state.query.to,
-                dateFrom: this.state.query.dateFrom,
-                dateTo: this.state.query.dateTo,
-                partner: this.state.query.partner,
-                limit: 6
+                ...this.state.query
             }
         })
             .then(res => {
@@ -152,155 +162,122 @@ class App extends Component {
                 this.setState({spinnerOn: false});
                 this.setState({ results });
             })
+            .catch(err => {
+                console.log(err.message)
+                this.setState({
+                    spinnerOn: false,
+                });
+            })
+    }
+
+    handleSuggestionItemClick(event) {
+        const query = this.state.query;
+        query[this.state.currentlyFocusedInput.getAttribute('name')] = event.target.innerText;
+        
+        this.setState({
+            query,
+            suggestions: []
+        });
     }
 
     render() {
 
+        const determineResultsField = (results) => {
+            if (results === null) {
+                return (<p className="searchPrompt">Use the search bar to search for flights</p>)
+            } else if (results.length === 0) {
+                return (<p className="searchPrompt">ups, looks like there are no flights for the given criteria</p>)
+            } else {
+                return (<DisplayResults results={this.state.results} />)
+            }
+        }
+
         return (
             <div className="App">
-                <header className="App-header">
-                    <img src={logo} className="App-logo" alt="logo" />
-                    <h1 className="App-title">Flight search built on React and Kiwi API</h1>
-                </header>
+                <AppHeader />
                 <div>
-                    <Card>
-                        <CardText>
-                            <form
-                                className="searchForm" 
-                                onSubmit={this.handleSubmit}>
-                                <TextField
-                                    className="flyFrom"
-                                    name="flyFrom"
-                                    hintText="Hint Text"
-                                    floatingLabelText="Fly from"
-                                    value={this.state.query.flyFrom}
-                                    onFocus={this.state.suggestionInputActive ? null : this.handleFocus}
-                                    onChange={this.handleInputChange}
-                                    ref={(input) => { this.textInput = input; }}
-                                    />
-                                <TextField
-                                    name="to"
-                                    hintText="Hint Text"
-                                    floatingLabelText="Fly to"
-                                    value={this.state.query.to}
-                                    onChange={this.handleInputChange}
-                                    />
-                                <DatePicker
-                                    value={this.state.datePickerTime}
-                                    className="datePicker"
-                                    DateTimeFormat={global.Intl.DateTimeFormat}
-                                    locale="en-GB"
-                                    hintText="Portrait Dialog"
-                                    autoOk={true}
-
-                                    onChange={this.handleDateChange}/>
-                                <RaisedButton
-                                    className="submitButton"
-                                    label="Search"
-                                    primary={true}
-                                    type="submit"
-                                    />
-                            </form>
-                        </CardText>
-                    </Card>
-                    {this.state.suggestions.length > 0 ? 
-                        <Paper className="suggestions">
-                            <Menu desktop={true}>
-                                {this.state.suggestions.map((suggestion, index) => {
-                                    return (
-                                        <MenuItem primaryText={suggestion} key={index} />
-                                    )
-                                })}
-                            </Menu>
-                        </Paper> : null
-                    }
-                </div>
-                <br />
-                <div
-                    className="searchResults">
-                    <Card>
-                        <CardHeader
-                            className="resultCardHeader resultCardHeader--header"
-                            actAsExpander={false}
-                            showExpandableButton={false}
-                            children={<div className="resultHeader">
-                                <div className="resultHeader__fromTo">
-                                    <ActionFlightTakeoff />
-                                    <span>Origin</span>
-                                </div>
-                                <div className="resultHeader__fromTo">    
-                                    <ActionFlightLand />
-                                    <span>Destination</span>
-                                </div>
-                                <div>
-                                    <IconTime />
-                                    Duration
-                                </div>
-                                <div className="resultHeader__price">
-                                    <IconEuro />
-                                    Price 
-                                </div>
-                            </div>}
-                            />
-                    </Card>
-                    {this.state.results.map(result => {
-                        return (
-                            <Card>
-                                <CardHeader
-                                className="resultCardHeader"
-                                actAsExpander={true}
-                                showExpandableButton={false}
-                                children={<div className="resultHeader">
-                                    <div className="resultHeader__fromTo">
-                                        <ActionFlightTakeoff />
-                                        <span>{result.mapIdfrom}</span>
-                                    </div>
-                                    <div className="resultHeader__fromTo">    
-                                        <ActionFlightLand />
-                                        <span>{result.mapIdto}</span>
-                                    </div>
+                    <div>
+                        <Card>
+                            <CardText>
+                                <form
+                                    className="searchForm" 
+                                    onSubmit={this.handleSubmit}>
                                     <div>
-                                        <IconTime />
-                                        {result.fly_duration}
+                                    <TextField
+                                        className="flyFrom"
+                                        name="flyFrom"
+                                        autoComplete="off"
+                                        floatingLabelText="Fly from"
+                                        value={this.state.query.flyFrom}
+                                        onFocus={this.state.suggestionInputActive ? null : this.handleFocus}
+                                        onChange={this.handleInputChange}
+                                        />
+                                    <TextField
+                                        className="to"
+                                        name="to"
+                                        autoComplete="off"
+                                        floatingLabelText="Fly to"
+                                        value={this.state.query.to}
+                                        onFocus={this.state.suggestionInputActive ? null : this.handleFocus}
+                                        onChange={this.handleInputChange}
+                                        />
+                                    <DatePicker
+                                        value={this.state.datePickerTime}
+                                        className="datePicker"
+                                        DateTimeFormat={global.Intl.DateTimeFormat}
+                                        locale="en-GB"
+                                        hintText="Portrait Dialog"
+                                        autoOk={true}
+                                        onChange={this.handleDateChange}/>
+                                    <RaisedButton
+                                        className="submitButton"
+                                        label="Search"
+                                        primary={true}
+                                        type="submit"
+                                        />
+                                    {this.state.suggestions.length > 0 ? 
+                                        <Paper 
+                                            className="suggestions"
+                                            style={{
+                                                    left: (() => {
+                                                        if (this.state.currentlyFocusedInput.getAttribute('name') === 'to') {
+                                                            return '277px'
+                                                        }
+                                                    })()
+                                            }}>
+                                            <Menu desktop={true}>
+                                                {this.state.suggestions.map((suggestion, index) => {
+                                                    return (
+                                                        <MenuItem
+                                                            primaryText={suggestion}
+                                                            key={index}
+                                                            onClick={this.handleSuggestionItemClick} />
+                                                    )
+                                                })}
+                                            </Menu>
+                                        </Paper> : null
+                                    }
                                     </div>
-                                    <div className="resultHeader__price">
-                                        <IconEuro />
-                                        {result.price} 
-                                    </div>
-                                </div>}
-                                />
-                                <CardText 
-                                    expandable={true}
-                                    className="resultCardBody">
-                                    <table>
-                                        <thead>
-                                            <tr>
-                                                <th>Route</th>
-                                                <th>Times</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {result.route.map(route => {
-                                                return (
-                                                    <tr>
-                                                        <td>{route.mapIdfrom} → {route.mapIdto}</td>
-                                                        <td>{(new Date(route.dTime * 1000)).toLocaleTimeString('en-GB')} - {(new Date(route.aTime * 1000)).toLocaleTimeString('en-GB')}</td>
-                                                    </tr>
-                                                )
-                                            })}
+                                </form>
+                            </CardText>
+                        </Card>
 
-                                        </tbody>
-                                    </table>
-                                </CardText>
-                            </Card>
-                        )
-                    })}
+                    </div>
+                    <div
+                        className="searchResults">
+                        <div>
+                            {determineResultsField(this.state.results)}
+                        </div>
+                        
+                        { this.state.spinnerOn ? 
+                            <div className="spinner">
+                                <CircularProgress size={60} thickness={6} />
+                            </div> : null
+                        }
+                    </div>                    
                 </div>
-                { this.state.spinnerOn ? <div className="spinner">
-                    <CircularProgress size={60} thickness={6} />
-                </div> : null       
-                }
-            </div>
+                <AppFooter />
+            </div>    
         );
     }
 }

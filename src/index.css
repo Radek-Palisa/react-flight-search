@@ -4,6 +4,18 @@ body {
   font-family: sans-serif;
 }
 
+.App {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.App > div {
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
+}
+
 .searchForm {
     display: flex;
     align-items: center;
@@ -11,7 +23,14 @@ body {
 }
 
 .searchForm > div {
-    margin-right: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.searchForm > div > div + div {
+    margin-left: 20px;
 }
 
 .datePicker {
@@ -23,63 +42,38 @@ body {
 }
 
 .searchResults {
-    max-width: 960px;
-    margin: 0 auto;
+    position: relative;
+    flex: 1 0 auto;
 }
 
-.resultHeader {
-    display: flex;
-    align-items: flex-end;
-    text-transform: capitalize;
-}
-
-.resultCardHeader--header {
-    color: rgb(0, 188, 212);
-}
-.resultCardHeader--header svg {
-    fill: rgb(0, 188, 212) !important;
-}
-
-.resultCardHeader > div:first-child {
-    display: none !important;
-}
-
-.resultHeader__fromTo {
-    width: 20%;
-}
-.resultHeader__price {
-    width: 67px;
-    margin-left: auto;
-}
-
-.resultHeader svg {
-    width: 20px !important;
-    height: 20px !important;
-    margin-right: 10px;
-    margin-bottom: -4px;
-}
-
-.resultCardBody > table {
-    margin-left: 27px;
-    text-align: left;
-}
-
-.resultCardBody > table th,
-.resultCardBody > table td {
-    padding-right: 10px;
-    padding-bottom: 10px;
-    text-transform: capitalize;
+.searchResults > div:first-child {
+    max-width: 920px;
+    margin: 30px auto 10px;
 }
 
 .spinner {
-    text-align: center;
-    margin-top: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 3px;
+    bottom: 0;
+    background-color: #ffffffe0;
 }
 
 .suggestions {
+    min-width: 256px;
     position: absolute;
-    top: 280px;
-    left: 140px;
+    top: 100%;
+    left: 0;
     z-index: 10;
     background-color: white;
+}
+
+.searchPrompt {
+    padding-top: 30px;
+    text-align: center;
+    font-style: italic;
 }
