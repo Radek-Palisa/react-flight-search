@@ -27,6 +27,11 @@
 .resultHeader__fromTo {
     width: 20%;
 }
+
+.resultHeader__duration {
+    width: 20%;
+}
+
 .resultHeader__price {
     width: 67px;
     margin-left: auto;
@@ -37,6 +42,11 @@
     height: 20px !important;
     margin-right: 10px;
     margin-bottom: -4px;
+}
+
+.resultCardBody {
+    display: flex;
+    justify-content: space-between;
 }
 
 .resultCardBody > table {

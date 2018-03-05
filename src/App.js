@@ -15,10 +15,17 @@ class App extends React.Component {
         };
 
         this.updateResults = this.updateResults.bind(this);
+        this.toggleSpinnerState = this.toggleSpinnerState.bind(this);
     }
 
     updateResults(results) {
         this.setState({ results })
+    }
+
+    toggleSpinnerState() {
+        this.setState(prevState => ({
+            spinnerOn: !prevState.spinnerOn
+        }));
     }
 
     render() {
@@ -38,7 +45,9 @@ class App extends React.Component {
                 <AppHeader />
                 <div>
                     <div>
-                       <SearchBar updateResults={this.updateResults} />
+                        <SearchBar 
+                            updateResults={this.updateResults}
+                            toggleSpinnerState={this.toggleSpinnerState}/>
                     </div>
                     <div
                         className="searchResults">

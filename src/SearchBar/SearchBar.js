@@ -30,7 +30,8 @@ export default class SearchBar extends React.Component {
                 to: 'london',
                 dateFrom: (new Date()).toLocaleDateString(),
                 dateTo: (new Date()).toLocaleDateString(),
-                limit: 30
+                limit: 30,
+                partner: 'picky'
             },
             datePickerTime: new Date(),
             suggestions: [],      
@@ -110,7 +111,7 @@ export default class SearchBar extends React.Component {
     }
 
     handleSubmit(event) {
-        this.setState({spinnerOn: true});
+        this.props.toggleSpinnerState();
         event.preventDefault();
         axios.get('https://api.skypicker.com/flights', {
             params: {
@@ -119,12 +120,12 @@ export default class SearchBar extends React.Component {
         })
             .then(res => {
                 const results = res.data.data;
-                this.setState({spinnerOn: false});
+                this.props.toggleSpinnerState();
                 this.props.updateResults(results);
             })
             .catch(err => {
                 console.log(err.message)
-                this.setState({ spinnerOn: false });
+                this.props.toggleSpinnerState();
             })
     }
 

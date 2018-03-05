@@ -2,10 +2,13 @@ import React from 'react';
 import './displayResults.css';
 
 import {Card, CardHeader, CardText} from 'material-ui/Card';
+import FlatButton from 'material-ui/FlatButton';
 import ActionFlightTakeoff from 'material-ui/svg-icons/action/flight-takeoff';
 import ActionFlightLand from 'material-ui/svg-icons/action/flight-land';
 import IconTime from 'material-ui/svg-icons/device/access-time';
+import IconTransfers from 'material-ui/svg-icons/action/cached';
 import IconEuro from 'material-ui/svg-icons/action/euro-symbol';
+import IconLaunch from 'material-ui/svg-icons/action/launch';
 
 export default class DisplayResults extends React.Component {
     constructor() {
@@ -47,9 +50,13 @@ export default class DisplayResults extends React.Component {
                             <ActionFlightLand />
                             <span>{result.mapIdto}</span>
                         </div>
-                        <div>
+                        <div className="resultHeader__duration">
                             <IconTime />
                             {result.fly_duration}
+                        </div>
+                        <div>
+                            <IconTransfers />
+                            {result.route.length}
                         </div>
                         <div className="resultHeader__price">
                             <IconEuro />
@@ -79,6 +86,13 @@ export default class DisplayResults extends React.Component {
 
                             </tbody>
                         </table>
+                        {/* <a href={result.deep_link}>Book with Kiwi <IconLaunch /></a> */}
+                        <FlatButton
+                            href={result.deep_link}
+                            label="Book with Kiwi"
+                            secondary={true}
+                            icon={<IconLaunch />}
+                            />
                     </CardText>
                 </Card>        
             )
@@ -118,9 +132,13 @@ export default class DisplayResults extends React.Component {
                                 <ActionFlightLand />
                                 <span>Destination</span>
                             </div>
-                            <div>
+                            <div className="resultHeader__duration">
                                 <IconTime />
                                 Duration
+                            </div>
+                            <div>
+                                <IconTransfers />
+                                Transfers
                             </div>
                             <div className="resultHeader__price">
                                 <IconEuro />
