@@ -16,41 +16,6 @@ body {
     flex-direction: column;
 }
 
-.searchForm {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.searchForm > div {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-}
-
-.searchForm > div > div + div {
-    margin-left: 20px;
-}
-
-.datePicker {
-    margin-top: 23px;
-}
-
-.submitButton {
-    margin-top: 19px;
-}
-
-.searchResults {
-    position: relative;
-    flex: 1 0 auto;
-}
-
-.searchResults > div:first-child {
-    max-width: 920px;
-    margin: 30px auto 10px;
-}
-
 .spinner {
     display: flex;
     align-items: center;
@@ -61,15 +26,6 @@ body {
     top: 3px;
     bottom: 0;
     background-color: #ffffffe0;
-}
-
-.suggestions {
-    min-width: 256px;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    z-index: 10;
-    background-color: white;
 }
 
 .searchPrompt {
