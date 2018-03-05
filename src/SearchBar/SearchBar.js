@@ -26,8 +26,8 @@ export default class SearchBar extends React.Component {
         super(props);
         this.state = {
             query: {
-                flyFrom: 'prague',
-                to: 'london',
+                flyFrom: '',
+                to: '',
                 dateFrom: (new Date()).toLocaleDateString(),
                 dateTo: (new Date()).toLocaleDateString(),
                 limit: 30,
